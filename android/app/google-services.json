@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "561903312484",
+    "project_id": "housely-72956",
+    "storage_bucket": "housely-72956.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:561903312484:android:4c30ccc39378b97eadc971",
+        "android_client_info": {
+          "package_name": "com.example.housely"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlJzfw0oSYuy-PI6YkB5YiZzU9LbeGLFQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:561903312484:android:485eedac04b71298adc971",
+        "android_client_info": {
+          "package_name": "com.pixelforge.housely"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlJzfw0oSYuy-PI6YkB5YiZzU9LbeGLFQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
