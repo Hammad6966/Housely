@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../theme/app_theme.dart';
 import 'home_screen.dart';
 import 'saved_screen.dart';
+import 'chat_list_screen.dart';
 import 'profile_screen.dart';
 import 'listing/listing_wizard_screen.dart';
 
@@ -21,6 +22,7 @@ class _MainNavigationState extends State<MainNavigation> {
   final List<Widget> _screens = [
     const HomeScreen(),
     const SavedScreen(),
+    const ChatListScreen(),
     const ProfileScreen(),
   ];
 
@@ -50,18 +52,38 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const ListingWizardScreen(),
+      extendBody: true,
+      floatingActionButton: Container(
+        height: 60.w,
+        width: 60.w,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [AppTheme.primaryTeal, AppTheme.lightTeal],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.primaryTeal.withValues(alpha: 0.4),
+              blurRadius: 15,
+              offset: const Offset(0, 6),
             ),
-          );
-        },
-        backgroundColor: AppTheme.primaryTeal,
-        elevation: 4,
-        child: const Icon(Icons.add, color: Colors.white),
+          ],
+        ),
+        child: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ListingWizardScreen(),
+              ),
+            );
+          },
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          child: Icon(Icons.add, color: Colors.white, size: 28.sp),
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       body: PageView(
@@ -74,43 +96,48 @@ class _MainNavigationState extends State<MainNavigation> {
         children: _screens,
       ),
       bottomNavigationBar: Container(
+        margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+        height: 70.h,
         decoration: BoxDecoration(
           color: AppTheme.white,
+          borderRadius: BorderRadius.circular(25.r),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.darkGray.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, -5),
+              color: AppTheme.darkGray.withValues(alpha: 0.15),
+              blurRadius: 20,
+              offset: const Offset(0, 5),
             ),
           ],
         ),
-        child: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildNavItem(
-                  icon: Icons.home_outlined,
-                  activeIcon: Icons.home,
-                  label: 'Home',
-                  index: 0,
-                ),
-                _buildNavItem(
-                  icon: Icons.favorite_outline,
-                  activeIcon: Icons.favorite,
-                  label: 'Saved',
-                  index: 1,
-                ),
-                _buildNavItem(
-                  icon: Icons.person_outline,
-                  activeIcon: Icons.person,
-                  label: 'Profile',
-                  index: 2,
-                ),
-              ],
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _buildNavItem(
+              icon: Icons.home_outlined,
+              activeIcon: Icons.home_rounded,
+              label: 'Home',
+              index: 0,
             ),
-          ),
+            _buildNavItem(
+              icon: Icons.favorite_outline_rounded,
+              activeIcon: Icons.favorite_rounded,
+              label: 'Saved',
+              index: 1,
+            ),
+            SizedBox(width: 60.w), // Space for FAB
+            _buildNavItem(
+              icon: Icons.chat_bubble_outline_rounded,
+              activeIcon: Icons.chat_bubble_rounded,
+              label: 'Chat',
+              index: 2,
+            ),
+            _buildNavItem(
+              icon: Icons.person_outline_rounded,
+              activeIcon: Icons.person_rounded,
+              label: 'Profile',
+              index: 3,
+            ),
+          ],
         ),
       ),
     );
@@ -126,36 +153,37 @@ class _MainNavigationState extends State<MainNavigation> {
 
     return GestureDetector(
       onTap: () => _onTabTapped(index),
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-        decoration: BoxDecoration(
-          color: isActive
-              ? AppTheme.primaryTeal.withOpacity(0.1)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(12.r),
-        ),
+      behavior: HitTestBehavior.opaque,
+      child: SizedBox(
+        width: 60.w,
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              isActive ? activeIcon : icon,
-              color: isActive ? AppTheme.primaryTeal : AppTheme.mediumGray,
-              size: 24.sp,
-            ).animate(target: isActive ? 1 : 0).scale(
-                  duration: 200.ms,
-                  curve: Curves.easeInOut,
-                ),
-            SizedBox(height: 4.h),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              padding: EdgeInsets.all(6.w),
+              decoration: BoxDecoration(
+                color: isActive
+                    ? AppTheme.primaryTeal.withValues(alpha: 0.15)
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(10.r),
+              ),
+              child: Icon(
+                isActive ? activeIcon : icon,
+                color: isActive ? AppTheme.primaryTeal : AppTheme.mediumGray,
+                size: 22.sp,
+              ),
+            ),
+            SizedBox(height: 2.h),
             Text(
               label,
-              style: AppTheme.caption.copyWith(
+              style: TextStyle(
+                fontSize: 10.sp,
+                fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
                 color: isActive ? AppTheme.primaryTeal : AppTheme.mediumGray,
-                fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
               ),
-            ).animate(target: isActive ? 1 : 0).fadeIn(
-                  duration: 200.ms,
-                  curve: Curves.easeInOut,
-                ),
+            ),
           ],
         ),
       ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../theme/app_theme.dart';
+import '../../models/property.dart';
+import '../../services/property_service.dart';
 import 'listing_type_step.dart';
 import 'step_two_details.dart';
 import 'step_three_location.dart';
@@ -14,11 +16,17 @@ class ListingWizardScreen extends StatefulWidget {
 
 class _ListingWizardScreenState extends State<ListingWizardScreen> {
   int _currentStep = 0;
-  
+  bool _isLoading = false;
+  final PropertyService _propertyService = PropertyService();
+
   // Step 1 Data
   String _selectedType = 'For Rent';
+  String _selectedPropertyType = 'House';
 
   // Step 2 Data
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _priceController = TextEditingController();
   final TextEditingController _bedsController = TextEditingController();
   final TextEditingController _bathsController = TextEditingController();
   final TextEditingController _sqftController = TextEditingController();
@@ -29,11 +37,86 @@ class _ListingWizardScreenState extends State<ListingWizardScreen> {
 
   @override
   void dispose() {
+    _titleController.dispose();
+    _descriptionController.dispose();
+    _priceController.dispose();
     _bedsController.dispose();
     _bathsController.dispose();
     _sqftController.dispose();
     _addressController.dispose();
     super.dispose();
+  }
+
+  Future<void> _publishListing() async {
+    // Validate required fields
+    if (_titleController.text.trim().isEmpty) {
+      _showError('Please enter a title for your property');
+      return;
+    }
+    if (_priceController.text.trim().isEmpty) {
+      _showError('Please enter a price');
+      return;
+    }
+    if (_addressController.text.trim().isEmpty) {
+      _showError('Please enter an address');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    final property = Property(
+      id: '',
+      title: _titleController.text.trim(),
+      description: _descriptionController.text.trim().isEmpty
+          ? 'Beautiful ${_selectedPropertyType.toLowerCase()} available ${_selectedType.toLowerCase()}'
+          : _descriptionController.text.trim(),
+      location: _addressController.text.trim(),
+      price: double.tryParse(_priceController.text.trim()) ?? 0,
+      images: ['assets/images/properties/property_1.jpg'], // Default image
+      hostName: '',
+      hostAvatar: '',
+      amenities: _selectedAmenities.toList(),
+      bedrooms: int.tryParse(_bedsController.text.trim()) ?? 0,
+      bathrooms: int.tryParse(_bathsController.text.trim()) ?? 0,
+      propertyType: _selectedPropertyType,
+      listingType: _selectedType,
+      sqft: int.tryParse(_sqftController.text.trim()) ?? 0,
+    );
+
+    final result = await _propertyService.addProperty(property);
+
+    setState(() => _isLoading = false);
+
+    if (result.success) {
+      if (mounted) {
+        Navigator.pop(context, true); // Return true to indicate success
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('🎉 Listing published successfully!'),
+            backgroundColor: AppTheme.primaryTeal,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.r),
+            ),
+          ),
+        );
+      }
+    } else {
+      _showError(result.message);
+    }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.r),
+        ),
+      ),
+    );
   }
 
   void _nextStep() {
@@ -42,11 +125,7 @@ class _ListingWizardScreenState extends State<ListingWizardScreen> {
         _currentStep++;
       });
     } else {
-      // Finish Wizard
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Listing Created Successfully!')),
-      );
+      _publishListing();
     }
   }
 
@@ -88,9 +167,15 @@ class _ListingWizardScreenState extends State<ListingWizardScreen> {
           children: [
             ListingTypeStep(
               selectedType: _selectedType,
+              selectedPropertyType: _selectedPropertyType,
               onTypeSelected: (type) => setState(() => _selectedType = type),
+              onPropertyTypeSelected: (type) =>
+                  setState(() => _selectedPropertyType = type),
             ),
             StepTwoDetails(
+              titleController: _titleController,
+              descriptionController: _descriptionController,
+              priceController: _priceController,
               bedsController: _bedsController,
               bathsController: _bathsController,
               sqftController: _sqftController,
@@ -117,7 +202,7 @@ class _ListingWizardScreenState extends State<ListingWizardScreen> {
           color: AppTheme.white,
           boxShadow: [
             BoxShadow(
-              color: AppTheme.darkGray.withOpacity(0.05),
+              color: AppTheme.darkGray.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, -5),
             ),
@@ -129,7 +214,7 @@ class _ListingWizardScreenState extends State<ListingWizardScreen> {
               if (_currentStep > 0)
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: _previousStep,
+                    onPressed: _isLoading ? null : _previousStep,
                     style: OutlinedButton.styleFrom(
                       padding: EdgeInsets.symmetric(vertical: 16.h),
                       side: const BorderSide(color: AppTheme.primaryTeal),
@@ -146,15 +231,24 @@ class _ListingWizardScreenState extends State<ListingWizardScreen> {
               Expanded(
                 flex: 2,
                 child: ElevatedButton(
-                  onPressed: _nextStep,
+                  onPressed: _isLoading ? null : _nextStep,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primaryTeal,
                     padding: EdgeInsets.symmetric(vertical: 16.h),
                   ),
-                  child: Text(
-                    _currentStep == 2 ? 'Publish Listing' : 'Next',
-                    style: AppTheme.button,
-                  ),
+                  child: _isLoading
+                      ? SizedBox(
+                          height: 20.h,
+                          width: 20.h,
+                          child: const CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : Text(
+                          _currentStep == 2 ? 'Publish Listing' : 'Next',
+                          style: AppTheme.button,
+                        ),
                 ),
               ),
             ],

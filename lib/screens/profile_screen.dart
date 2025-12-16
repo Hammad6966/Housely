@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:image_picker/image_picker.dart';
 import '../theme/app_theme.dart';
 import '../services/auth_service.dart';
 import '../models/user.dart';
@@ -17,6 +19,112 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final AuthService _authService = AuthService();
+  final ImagePicker _imagePicker = ImagePicker();
+  bool _isUploadingImage = false;
+
+  Future<void> _pickAndUploadImage() async {
+    try {
+      // Show bottom sheet to choose camera or gallery
+      final source = await showModalBottomSheet<ImageSource>(
+        context: context,
+        backgroundColor: Colors.transparent,
+        builder: (context) => Container(
+          padding: EdgeInsets.all(20.w),
+          decoration: BoxDecoration(
+            color: AppTheme.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40.w,
+                height: 4.h,
+                decoration: BoxDecoration(
+                  color: AppTheme.mediumGray,
+                  borderRadius: BorderRadius.circular(2.r),
+                ),
+              ),
+              SizedBox(height: 20.h),
+              Text(
+                'Choose Profile Photo',
+                style: AppTheme.heading3,
+              ),
+              SizedBox(height: 20.h),
+              ListTile(
+                leading: Container(
+                  padding: EdgeInsets.all(10.w),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryTeal.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
+                  child: Icon(Icons.camera_alt, color: AppTheme.primaryTeal),
+                ),
+                title: Text('Take a Photo', style: AppTheme.bodyLarge),
+                onTap: () => Navigator.pop(context, ImageSource.camera),
+              ),
+              ListTile(
+                leading: Container(
+                  padding: EdgeInsets.all(10.w),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryTeal.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
+                  child: Icon(Icons.photo_library, color: AppTheme.primaryTeal),
+                ),
+                title: Text('Choose from Gallery', style: AppTheme.bodyLarge),
+                onTap: () => Navigator.pop(context, ImageSource.gallery),
+              ),
+              SizedBox(height: 10.h),
+            ],
+          ),
+        ),
+      );
+
+      if (source == null) return;
+
+      final pickedFile = await _imagePicker.pickImage(
+        source: source,
+        maxWidth: 512,
+        maxHeight: 512,
+        imageQuality: 75,
+      );
+
+      if (pickedFile == null) return;
+
+      setState(() => _isUploadingImage = true);
+
+      final result = await _authService.uploadProfileImage(File(pickedFile.path));
+
+      setState(() => _isUploadingImage = false);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result.message),
+            backgroundColor: result.success ? AppTheme.primaryTeal : Colors.red,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.r),
+            ),
+          ),
+        );
+        if (result.success) {
+          setState(() {}); // Refresh UI
+        }
+      }
+    } catch (e) {
+      setState(() => _isUploadingImage = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 
   Future<void> _handleLogout() async {
     await _authService.logout();
@@ -124,36 +232,62 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       child: Column(
         children: [
-          Stack(
-            children: [
-              CircleAvatar(
-                radius: 50.r,
-                backgroundImage: const NetworkImage(
-                  'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200',
-                ),
-              ),
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: Container(
-                  width: 30.w,
-                  height: 30.w,
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryTeal,
-                    borderRadius: BorderRadius.circular(15.r),
-                    border: Border.all(
+          GestureDetector(
+            onTap: _isUploadingImage ? null : _pickAndUploadImage,
+            child: Stack(
+              children: [
+                _isUploadingImage
+                    ? Container(
+                        width: 100.r,
+                        height: 100.r,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppTheme.lightGray,
+                        ),
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: AppTheme.primaryTeal,
+                            strokeWidth: 2,
+                          ),
+                        ),
+                      )
+                    : CircleAvatar(
+                        radius: 50.r,
+                        backgroundColor: AppTheme.lightGray,
+                        backgroundImage: user?.profileImage != null && user!.profileImage!.isNotEmpty
+                            ? NetworkImage(user.profileImage!)
+                            : null,
+                        child: user?.profileImage == null || user!.profileImage!.isEmpty
+                            ? Icon(
+                                Icons.person,
+                                size: 50.sp,
+                                color: AppTheme.mediumGray,
+                              )
+                            : null,
+                      ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Container(
+                    width: 30.w,
+                    height: 30.w,
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryTeal,
+                      borderRadius: BorderRadius.circular(15.r),
+                      border: Border.all(
+                        color: AppTheme.white,
+                        width: 3,
+                      ),
+                    ),
+                    child: Icon(
+                      Icons.camera_alt,
                       color: AppTheme.white,
-                      width: 3,
+                      size: 16.sp,
                     ),
                   ),
-                  child: Icon(
-                    Icons.camera_alt,
-                    color: AppTheme.white,
-                    size: 16.sp,
-                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           )
               .animate()
               .scale(duration: 800.ms, delay: 300.ms)

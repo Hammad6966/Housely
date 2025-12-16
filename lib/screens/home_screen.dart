@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../theme/app_theme.dart';
 import '../data/sample_data.dart';
 import '../models/property.dart';
+import '../services/property_service.dart';
 import '../widgets/property_card.dart';
 import 'property_details_screen.dart';
 import 'filter_screen.dart';
@@ -17,7 +18,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
+  final PropertyService _propertyService = PropertyService();
   String _selectedFilter = 'All';
+  String _searchQuery = '';
 
   final List<String> _filters = [
     'All',
@@ -35,15 +38,32 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  List<Property> get _filteredProperties {
-    if (_selectedFilter == 'All') {
-      return SampleData.properties;
+  List<Property> _filterProperties(List<Property> properties) {
+    List<Property> filtered = properties;
+
+    // Apply type filter
+    if (_selectedFilter != 'All') {
+      filtered = filtered
+          .where((property) =>
+              property.propertyType.toLowerCase() ==
+              _selectedFilter.toLowerCase())
+          .toList();
     }
-    return SampleData.properties
-        .where((property) =>
-            property.propertyType.toLowerCase() ==
-            _selectedFilter.toLowerCase())
-        .toList();
+
+    // Apply search filter
+    if (_searchQuery.isNotEmpty) {
+      filtered = filtered
+          .where((property) =>
+              property.title
+                  .toLowerCase()
+                  .contains(_searchQuery.toLowerCase()) ||
+              property.location
+                  .toLowerCase()
+                  .contains(_searchQuery.toLowerCase()))
+          .toList();
+    }
+
+    return filtered;
   }
 
   @override
@@ -149,7 +169,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         onChanged: (value) {
-          setState(() {});
+          setState(() {
+            _searchQuery = value;
+          });
         },
       ),
     )
@@ -209,40 +231,75 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildPropertyList() {
-    final properties = _filteredProperties;
+    return StreamBuilder<List<Property>>(
+      stream: _propertyService.getPropertiesStream(),
+      builder: (context, snapshot) {
+        // Combine Firebase properties with sample data
+        List<Property> allProperties = [...SampleData.properties];
 
-    return ListView.builder(
-      padding: EdgeInsets.symmetric(horizontal: 20.w),
-      itemCount: properties.length,
-      itemBuilder: (context, index) {
-        final property = properties[index];
+        if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+          // Add Firebase properties at the beginning
+          allProperties = [...snapshot.data!, ...SampleData.properties];
+        }
 
-        return PropertyCard(
-          property: property,
-          onTap: () {
-            Navigator.push(
-              context,
-              PageRouteBuilder(
-                pageBuilder: (context, animation, secondaryAnimation) =>
-                    PropertyDetailsScreen(property: property),
-                transitionsBuilder:
-                    (context, animation, secondaryAnimation, child) {
-                  return SlideTransition(
-                    position: animation.drive(
-                      Tween(begin: const Offset(1.0, 0.0), end: Offset.zero)
-                          .chain(CurveTween(curve: Curves.easeInOut)),
-                    ),
-                    child: child,
-                  );
-                },
-                transitionDuration: const Duration(milliseconds: 300),
-              ),
-            );
+        final properties = _filterProperties(allProperties);
+
+        if (properties.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.home_work_outlined,
+                  size: 64.sp,
+                  color: AppTheme.mediumGray,
+                ),
+                SizedBox(height: 16.h),
+                Text(
+                  'No properties found',
+                  style: AppTheme.bodyLarge.copyWith(
+                    color: AppTheme.mediumGray,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return ListView.builder(
+          padding: EdgeInsets.symmetric(horizontal: 20.w),
+          itemCount: properties.length,
+          itemBuilder: (context, index) {
+            final property = properties[index];
+
+            return PropertyCard(
+              property: property,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) =>
+                        PropertyDetailsScreen(property: property),
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                      return SlideTransition(
+                        position: animation.drive(
+                          Tween(begin: const Offset(1.0, 0.0), end: Offset.zero)
+                              .chain(CurveTween(curve: Curves.easeInOut)),
+                        ),
+                        child: child,
+                      );
+                    },
+                    transitionDuration: const Duration(milliseconds: 300),
+                  ),
+                );
+              },
+            )
+                .animate()
+                .fadeIn(duration: 600.ms, delay: (index * 100).ms)
+                .slideY(begin: 0.3, duration: 600.ms, delay: (index * 100).ms);
           },
-        )
-            .animate()
-            .fadeIn(duration: 600.ms, delay: (index * 100).ms)
-            .slideY(begin: 0.3, duration: 600.ms, delay: (index * 100).ms);
+        );
       },
     );
   }

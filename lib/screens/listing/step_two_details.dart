@@ -3,6 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../theme/app_theme.dart';
 
 class StepTwoDetails extends StatelessWidget {
+  final TextEditingController titleController;
+  final TextEditingController descriptionController;
+  final TextEditingController priceController;
   final TextEditingController bedsController;
   final TextEditingController bathsController;
   final TextEditingController sqftController;
@@ -11,6 +14,9 @@ class StepTwoDetails extends StatelessWidget {
 
   const StepTwoDetails({
     super.key,
+    required this.titleController,
+    required this.descriptionController,
+    required this.priceController,
     required this.bedsController,
     required this.bathsController,
     required this.sqftController,
@@ -40,6 +46,15 @@ class StepTwoDetails extends StatelessWidget {
             style: AppTheme.heading2,
           ),
           SizedBox(height: 20.h),
+          _buildInput('Property Title *', titleController, TextInputType.text, 
+              hintText: 'e.g., Modern Downtown Apartment'),
+          SizedBox(height: 16.h),
+          _buildInput('Description', descriptionController, TextInputType.multiline, 
+              hintText: 'Describe your property...', maxLines: 3),
+          SizedBox(height: 16.h),
+          _buildInput('Price (per month/total) *', priceController, TextInputType.number, 
+              hintText: '0', prefixText: '\$ '),
+          SizedBox(height: 16.h),
           Row(
             children: [
               Expanded(child: _buildInput('Beds', bedsController, TextInputType.number)),
@@ -78,7 +93,8 @@ class StepTwoDetails extends StatelessWidget {
     );
   }
 
-  Widget _buildInput(String label, TextEditingController controller, TextInputType type) {
+  Widget _buildInput(String label, TextEditingController controller, TextInputType type, 
+      {String? hintText, int maxLines = 1, String? prefixText}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -87,8 +103,10 @@ class StepTwoDetails extends StatelessWidget {
         TextField(
           controller: controller,
           keyboardType: type,
+          maxLines: maxLines,
           decoration: InputDecoration(
-            hintText: '0',
+            hintText: hintText ?? '0',
+            prefixText: prefixText,
             contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
           ),
         ),

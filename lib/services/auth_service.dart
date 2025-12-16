@@ -1,5 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:io';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:firebase_storage/firebase_storage.dart';
 import '../models/user.dart';
 
 class AuthService {
@@ -8,7 +10,8 @@ class AuthService {
   AuthService._internal();
 
   final firebase_auth.FirebaseAuth _auth = firebase_auth.FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final DatabaseReference _database = FirebaseDatabase.instance.ref();
+  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   User? _currentUser;
   bool get isLoggedIn => _auth.currentUser != null;
@@ -88,8 +91,8 @@ class AuthService {
           isVerified: false,
         );
 
-        // Save to Firestore
-        await _firestore.collection('users').doc(uid).set(_currentUser!.toJson());
+        // Save to Realtime Database
+        await _database.child('users').child(uid).set(_currentUser!.toJson());
 
         return AuthResult(
           success: true,
@@ -111,6 +114,46 @@ class AuthService {
       return AuthResult(
         success: false,
         message: 'An unexpected error occurred: $e',
+      );
+    }
+  }
+
+  // Upload profile image
+  Future<AuthResult> uploadProfileImage(File imageFile) async {
+    try {
+      if (_currentUser == null) {
+        return const AuthResult(
+          success: false,
+          message: 'You must be logged in to upload a profile image',
+        );
+      }
+
+      final userId = _currentUser!.id;
+      final ref = _storage.ref().child('profile_images/$userId.jpg');
+      
+      // Upload file
+      await ref.putFile(imageFile);
+      
+      // Get download URL
+      final downloadUrl = await ref.getDownloadURL();
+      
+      // Update user in Realtime Database
+      await _database.child('users').child(userId).update({
+        'profileImage': downloadUrl,
+      });
+      
+      // Update local user object
+      _currentUser = _currentUser!.copyWith(profileImage: downloadUrl);
+      
+      return AuthResult(
+        success: true,
+        message: 'Profile image updated successfully',
+        user: _currentUser,
+      );
+    } catch (e) {
+      return AuthResult(
+        success: false,
+        message: 'Failed to upload profile image: $e',
       );
     }
   }
@@ -138,11 +181,12 @@ class AuthService {
   }
 
   Future<void> _loadUserData(String uid) async {
-    final doc = await _firestore.collection('users').doc(uid).get();
-    if (doc.exists && doc.data() != null) {
-      _currentUser = User.fromJson(doc.data()!);
+    final snapshot = await _database.child('users').child(uid).get();
+    if (snapshot.exists && snapshot.value != null) {
+      final data = Map<String, dynamic>.from(snapshot.value as Map);
+      _currentUser = User.fromJson(data);
     } else {
-      // Handle case where auth exists but firestore doc is missing
+      // Handle case where auth exists but database doc is missing
       // For now, create a basic user object from auth data
       _currentUser = User(
         id: uid,
