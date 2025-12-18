@@ -118,15 +118,15 @@ The app features:
 - Detailed property views
 - User profile with statistics
 - Search and filtering capabilities
-<img width="576" height="1280" alt="image" src="https://github.com/user-attachments/assets/7f434790-6859-47e8-8ac2-d5f4de024106" />
-<img width="576" height="1280" alt="image" src="https://github.com/user-attachments/assets/d0d895cf-203b-45d1-b179-50ad6768cceb" />
-<img width="576" height="1280" alt="image" src="https://github.com/user-attachments/assets/bdc4b765-a4e0-4e45-ade7-9513b06e43bc" />
-<img width="576" height="1280" alt="image" src="https://github.com/user-attachments/assets/4cc9d577-0586-4826-beb7-2b2e89ffed76" />
-<img width="576" height="1280" alt="image" src="https://github.com/user-attachments/assets/f882387b-020d-44e1-aef0-07e10eb1fbf6" />
-<img width="576" height="1280" alt="image" src="https://github.com/user-attachments/assets/1c02b52b-301b-454e-8631-c7b49cb686ed" />
-<img width="576" height="1280" alt="image" src="https://github.com/user-attachments/assets/20bee937-4f6b-43b6-a04d-874be3d05be4" />
-<img width="576" height="1280" alt="image" src="https://github.com/user-attachments/assets/0761f4c9-b67d-4356-8f05-e7355108393e" />
-<img width="576" height="1280" alt="image" src="https://github.com/user-attachments/assets/03877a8b-23c7-4b40-b719-12edec95d995" />
+<img width="200" height="600" alt="image" src="https://github.com/user-attachments/assets/7f434790-6859-47e8-8ac2-d5f4de024106" />
+<img width="200" height="600" alt="image" src="https://github.com/user-attachments/assets/d0d895cf-203b-45d1-b179-50ad6768cceb" />
+<img width="200" height="600" alt="image" src="https://github.com/user-attachments/assets/bdc4b765-a4e0-4e45-ade7-9513b06e43bc" />
+<img width="200" height="600" alt="image" src="https://github.com/user-attachments/assets/4cc9d577-0586-4826-beb7-2b2e89ffed76" />
+<img width="200" height="600" alt="image" src="https://github.com/user-attachments/assets/f882387b-020d-44e1-aef0-07e10eb1fbf6" />
+<img width="200" height="600" alt="image" src="https://github.com/user-attachments/assets/1c02b52b-301b-454e-8631-c7b49cb686ed" />
+<img width="200" height="600" alt="image" src="https://github.com/user-attachments/assets/20bee937-4f6b-43b6-a04d-874be3d05be4" />
+<img width="200" height="600" alt="image" src="https://github.com/user-attachments/assets/0761f4c9-b67d-4356-8f05-e7355108393e" />
+<img width="200" height="600" alt="image" src="https://github.com/user-attachments/assets/03877a8b-23c7-4b40-b719-12edec95d995" />
 
 
 
