@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
-import 'package:firebase_storage/firebase_storage.dart';
 import '../models/user.dart';
+import 'cloudinary_service.dart';
 
 class AuthService {
   static final AuthService _instance = AuthService._internal();
@@ -11,7 +11,7 @@ class AuthService {
 
   final firebase_auth.FirebaseAuth _auth = firebase_auth.FirebaseAuth.instance;
   final DatabaseReference _database = FirebaseDatabase.instance.ref();
-  final FirebaseStorage _storage = FirebaseStorage.instance;
+  final CloudinaryService _cloudinary = CloudinaryService();
 
   User? _currentUser;
   bool get isLoggedIn => _auth.currentUser != null;
@@ -118,7 +118,7 @@ class AuthService {
     }
   }
 
-  // Upload profile image
+  // Upload profile image using Cloudinary
   Future<AuthResult> uploadProfileImage(File imageFile) async {
     try {
       if (_currentUser == null) {
@@ -129,13 +129,9 @@ class AuthService {
       }
 
       final userId = _currentUser!.id;
-      final ref = _storage.ref().child('profile_images/$userId.jpg');
       
-      // Upload file
-      await ref.putFile(imageFile);
-      
-      // Get download URL
-      final downloadUrl = await ref.getDownloadURL();
+      // Upload to Cloudinary - returns secure_url directly
+      final downloadUrl = await _cloudinary.uploadProfileImage(imageFile, userId);
       
       // Update user in Realtime Database
       await _database.child('users').child(userId).update({
@@ -149,6 +145,11 @@ class AuthService {
         success: true,
         message: 'Profile image updated successfully',
         user: _currentUser,
+      );
+    } on CloudinaryException catch (e) {
+      return AuthResult(
+        success: false,
+        message: e.message,
       );
     } catch (e) {
       return AuthResult(
