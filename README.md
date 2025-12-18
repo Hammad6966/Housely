@@ -97,16 +97,21 @@ lib/
 - [x] Static property data
 
 ### 🔄 **Future Enhancements**
-- [ ] Backend integration
-- [ ] User authentication
-- [ ] Real-time property data
-- [ ] Booking system
-- [ ] Payment integration
-- [ ] Push notifications
-- [ ] Advanced search filters
-- [ ] Map integration
-- [ ] Chat functionality
-- [ ] Review system
+- [ ] Complete backend integration (Firebase Realtime Database, Cloudinary)
+- [ ] Robust user authentication (email, social login)
+- [ ] Real-time property listing updates
+- [ ] Property booking and reservation system
+- [ ] Secure payment integration (Stripe, PayPal, etc.)
+- [ ] Push notifications for bookings and messages
+- [ ] Advanced search and filtering (location, price, amenities)
+- [ ] Interactive map integration (Google Maps, Mapbox)
+- [ ] In-app chat and messaging between users
+- [ ] User review and rating system
+- [ ] Admin dashboard for property management
+- [ ] Multi-language support
+- [ ] Dark mode and accessibility improvements
+- [ ] Analytics and user insights
+- [ ] Image optimization and lazy loading
 
 ## Design Principles
 
