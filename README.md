@@ -85,34 +85,22 @@ lib/
 ## Features Implemented (30% Complete)
 
 ### ✅ **Completed Features**
-- [x] Modern app theme with teal color scheme
-- [x] Animated splash screen with logo
-- [x] Home screen with property listings
-- [x] Property details screen with image gallery
-- [x] Bottom navigation bar
-- [x] Saved properties screen
-- [x] User profile screen
-- [x] Smooth animations throughout
-- [x] Responsive design
-- [x] Static property data
-
-### 🔄 **Future Enhancements**
+- [ ] Modern app theme with teal color scheme
+- [ ] Animated splash screen with logo
+- [ ] Home screen with property listings
+- [ ] Property details screen with image gallery
+- [ ] Bottom navigation bar
+- [ ] Saved properties screen
+- [ ] User profile screen
+- [ ] Smooth animations throughout
+- [ ] Responsive design
+- [ ] Static property data
 - [ ] Complete backend integration (Firebase Realtime Database, Cloudinary)
 - [ ] Robust user authentication (email, social login)
 - [ ] Real-time property listing updates
 - [ ] Property booking and reservation system
-- [ ] Secure payment integration (Stripe, PayPal, etc.)
-- [ ] Push notifications for bookings and messages
 - [ ] Advanced search and filtering (location, price, amenities)
-- [ ] Interactive map integration (Google Maps, Mapbox)
 - [ ] In-app chat and messaging between users
-- [ ] User review and rating system
-- [ ] Admin dashboard for property management
-- [ ] Multi-language support
-- [ ] Dark mode and accessibility improvements
-- [ ] Analytics and user insights
-- [ ] Image optimization and lazy loading
-
 ## Design Principles
 
 - **Modern & Clean**: Minimalist design with focus on content
@@ -130,6 +118,22 @@ The app features:
 - Detailed property views
 - User profile with statistics
 - Search and filtering capabilities
+<img width="576" height="1280" alt="image" src="https://github.com/user-attachments/assets/7f434790-6859-47e8-8ac2-d5f4de024106" />
+<img width="576" height="1280" alt="image" src="https://github.com/user-attachments/assets/d0d895cf-203b-45d1-b179-50ad6768cceb" />
+<img width="576" height="1280" alt="image" src="https://github.com/user-attachments/assets/bdc4b765-a4e0-4e45-ade7-9513b06e43bc" />
+<img width="576" height="1280" alt="image" src="https://github.com/user-attachments/assets/4cc9d577-0586-4826-beb7-2b2e89ffed76" />
+<img width="576" height="1280" alt="image" src="https://github.com/user-attachments/assets/f882387b-020d-44e1-aef0-07e10eb1fbf6" />
+<img width="576" height="1280" alt="image" src="https://github.com/user-attachments/assets/1c02b52b-301b-454e-8631-c7b49cb686ed" />
+<img width="576" height="1280" alt="image" src="https://github.com/user-attachments/assets/20bee937-4f6b-43b6-a04d-874be3d05be4" />
+<img width="576" height="1280" alt="image" src="https://github.com/user-attachments/assets/0761f4c9-b67d-4356-8f05-e7355108393e" />
+<img width="576" height="1280" alt="image" src="https://github.com/user-attachments/assets/03877a8b-23c7-4b40-b719-12edec95d995" />
+
+
+
+
+
+
+
 
 ## Contributing
 
